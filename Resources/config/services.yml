@@ -1,0 +1,8 @@
+services:
+    wsseuserpassword.security.authentication.provider:
+        class:  %wsseuserpassword.authentication.provider.class%
+        arguments: ['', %kernel.cache_dir%/security/nonces, 300]
+
+    wsseuserpassword.security.authentication.listener:
+        class:  %wsseuserpassword.authentication.listener.class%
+        arguments: [@security.context, @security.authentication.manager]
