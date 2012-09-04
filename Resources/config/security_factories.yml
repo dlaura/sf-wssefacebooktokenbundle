@@ -1,8 +1,8 @@
 parameters:
-    wsseuserpassword.factory.class: Onfan\WSSEUserPasswordBundle\Security\Factory\Factory
+    wsseaccesstoken.factory.class: Onfan\WSSEAccessTokenBundle\Security\Factory\Factory
 
 services:
-    security.authentication.factory.wsseuserpassword:
-        class:  %wsseuserpassword.factory.class%
+    security.authentication.factory.wsseaccesstoken:
+        class:  %wsseaccesstoken.factory.class%
         tags:
             - { name: security.listener.factory }

@@ -1,8 +1,8 @@
 <?php
 
-namespace Onfan\WSSEUserPasswordBundle\Security\Firewall;
+namespace Onfan\WSSEAccessTokenBundle\Security\Firewall;
 
-use Onfan\WSSEUserPasswordBundle\Security\Authentication\Token\Token;
+use Onfan\WSSEAccessTokenBundle\Security\Authentication\Token\Token;
 
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\GetResponseEvent;
@@ -44,7 +44,7 @@ class Listener implements ListenerInterface
     }
 
     /**
-     * The method parses X-WSSE header. If Username, PasswordDigest, Nonce and Created are exists then it returns value of them.
+     * The method parses X-WSSE header. If Username, AccessToken, Nonce and Created exists then it returns value of them.
      * Otherwise the method returns false.
      *
      * @return array|bool
@@ -56,7 +56,7 @@ class Listener implements ListenerInterface
         try
         {
             $result['Username'] = $this->parseValue('Username');
-            $result['PasswordDigest'] = $this->parseValue('PasswordDigest');
+            $result['AccessToken'] = $this->parseValue('AccessToken');
             $result['Nonce'] = $this->parseValue('Nonce');
             $result['Created'] = $this->parseValue('Created');
         }
@@ -81,7 +81,7 @@ class Listener implements ListenerInterface
 			{
 				$token = new Token();
 				$token->setUser($wsseHeaderInfo['Username']);
-				$token->digest = $wsseHeaderInfo['PasswordDigest'];
+				$token->accessToken = $wsseHeaderInfo['AccessToken'];
 				$token->nonce = $wsseHeaderInfo['Nonce'];
 				$token->created = $wsseHeaderInfo['Created'];
                                 

@@ -1,6 +1,6 @@
 <?php
 
-namespace Onfan\WSSEUserPasswordBundle\Security\Factory;
+namespace Onfan\WSSEAccessTokenBundle\Security\Factory;
 
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Reference;
@@ -12,15 +12,15 @@ class Factory implements SecurityFactoryInterface
 {
 	public function create(ContainerBuilder $container, $id, $config, $userProvider, $defaultEntryPoint)
 	{
-		$providerId = 'security.authentication.provider.wsseuserpassword.'.$id;
+		$providerId = 'security.authentication.provider.wsseaccesstoken.'.$id;
 		$container
-			->setDefinition($providerId, new DefinitionDecorator('wsseuserpassword.security.authentication.provider'))
+			->setDefinition($providerId, new DefinitionDecorator('wsseaccesstoken.security.authentication.provider'))
 			->replaceArgument(0, new Reference($userProvider))
 			->replaceArgument(1, $config['nonce_dir'])
 			->replaceArgument(2, $config['lifetime']);
 
-		$listenerId = 'security.authentication.listener.wsseuserpassword.'.$id;
-		$listener = $container->setDefinition($listenerId, new DefinitionDecorator('wsseuserpassword.security.authentication.listener'));
+		$listenerId = 'security.authentication.listener.wsseaccesstoken.'.$id;
+		$listener = $container->setDefinition($listenerId, new DefinitionDecorator('wsseaccesstoken.security.authentication.listener'));
 
 		return array($providerId, $listenerId, $defaultEntryPoint);
 	}
@@ -32,7 +32,7 @@ class Factory implements SecurityFactoryInterface
 
 	public function getKey()
 	{
-		return 'wsseuserpassword';
+		return 'wsseaccesstoken';
 	}
 
 	public function addConfiguration(NodeDefinition $node)

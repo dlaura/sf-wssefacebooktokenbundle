@@ -1,8 +1,8 @@
 <?php
 
-namespace Onfan\WSSEUserPasswordBundle\Security\Authentication\Provider;
+namespace Onfan\WSSEAccessTokenBundle\Security\Authentication\Provider;
 
-use Onfan\WSSEUserPasswordBundle\Security\Authentication\Token\Token;
+use Onfan\WSSEAccessTokenBundle\Security\Authentication\Token\Token;
 
 use Symfony\Component\Security\Core\Authentication\Provider\AuthenticationProviderInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
@@ -27,7 +27,7 @@ class Provider implements AuthenticationProviderInterface
 	{
 		$user = $this->userProvider->loadUserByUsername($token->getUsername());
                 
-		if($user && $this->validateDigest($token->digest, $token->nonce, $token->created, $user->getPassword()))
+		if($user && $this->validateAccessToken($token->accessToken, $token->nonce, $token->created, $user))
 		{
 			$authenticatedToken = new Token($user->getRoles());
 			$authenticatedToken->setUser($user);
@@ -36,10 +36,10 @@ class Provider implements AuthenticationProviderInterface
 			return $authenticatedToken;
 		}
 
-		throw new AuthenticationException('WSSE authentication failed.');
+		throw new AuthenticationException('WSSE AccessToken authentication failed.');
 	}
 
-	protected function validateDigest($digest, $nonce, $created, $secret)
+	protected function validateAccessToken($accessToken, $nonce, $created, $user)
 	{
 		//expire timestamp after specified lifetime
 		if(time() - strtotime($created) > $this->lifetime)
@@ -58,24 +58,20 @@ class Provider implements AuthenticationProviderInterface
 			file_put_contents($this->nonceDir.'/'.$nonce, time());
 		}
 
-		//validate secret		
-		$expected = base64_encode(sha1(base64_decode($nonce).$created.$secret, true));
+		
+		//validate access token
+                foreach ($user->getAccessTokens() as $token) {
+                    if ($token->getAccessToken() === base64_decode($accessToken)) {
+                        if ($token->getEnabled()) {
+                            // TODO: check token expiration ...
+                            return true;
+                        } else {
+                            return false;
+                        }
+                    }
+                }
                 
-                /*
-                print_r(array(
-                    'b64_nonce' => $nonce.' ('.  strlen($nonce).')',
-                    'nonce' => base64_decode($nonce).' ('.  strlen(base64_decode($nonce)).')',
-                    'str' => base64_decode($nonce).$created.$secret.' ('.  strlen(base64_decode($nonce).$created.$secret).')',
-                    'sha1 str' => sha1(base64_decode($nonce).$created.$secret, true).' ('.  strlen(sha1(base64_decode($nonce).$created.$secret, true)).')',
-                    'expected' => $expected.' ('.  strlen($expected).')',
-                    'digest' => $digest.' ('.  strlen($digest).')',
-                    'are equal' => $digest === $expected
-                )); exit;
-                 * 
-                 */
-                 
-
-		return $digest === $expected;
+		return false;
 	}
 
 	public function supports(TokenInterface $token)
